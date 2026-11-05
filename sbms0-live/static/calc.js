@@ -215,17 +215,19 @@ async function updateBatLevels() {
     {},
     { label: 'Voltage', stroke: '#5794f2', width: 2, spanGaps: true, scale: 'volt' },
     { label: 'SOC', stroke: '#73bf69', width: 2, spanGaps: true, scale: 'soc',
-      dash: [0, 10], // gepunktet wie Grafana lineStyle dot
-      points: { show: false } },
+      // gepunktet wie Grafana (dash [0,10] zeichnet in uPlot nichts -> Punkte nutzen)
+      points: { show: true, size: 3, stroke: '#73bf69', fill: '#73bf69', space: 8 } },
   ];
-  opts.scales = { x: { time: true }, volt: { auto: true }, soc: { auto: true, range: [0, 100] } };
+  opts.scales = { x: { time: true },
+    volt: { auto: true, range: (u, dmin, dmax) => [Math.floor(dmin) , Math.ceil(dmax)] },
+    soc: { auto: true, range: [0, 100] } };
   opts.axes = [
     { stroke: '#8e8e8e', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' },
       values: (u, vals) => vals.map((v) => new Date(v).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })) },
     { scale: 'volt', stroke: '#5794f2', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' }, side: 3,
-      values: (u, vals) => vals.map((v) => v.toFixed(2) + ' V') },
+      values: (u, vals) => vals.map((v) => Number(v).toFixed(2) + ' V') },
     { scale: 'soc', stroke: '#73bf69', grid: { show: false }, ticks: { stroke: '#2c3235' }, side: 1,
-      values: (u, vals) => vals.map((v) => v.toFixed(0) + ' %') },
+      values: (u, vals) => vals.map((v) => Number(v).toFixed(0) + ' %') },
   ];
   if (!battPlot) battPlot = new uPlot(opts, data, $('battchart'));
   else battPlot.setData(data);
