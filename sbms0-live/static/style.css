@@ -71,8 +71,8 @@ body {
 #soc-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #2e7d32, #73d216);
-  transition: width 0.4s;
+  background: #73bf69;
+  transition: width 0.4s, background 0.4s;
 }
 #soc-label {
   position: absolute; inset: 0;
@@ -120,7 +120,7 @@ body {
 
 /* --- Flags --- */
 #flags-card { grid-column: 1 / -1; }
-#flags-de { font-size: 1.2rem; margin-top: 4px; }
+#flags-de { font-size: 1.2rem; margin-top: 4px; color: var(--orange); }
 #flags-de.err { color: var(--red); font-weight: 600; }
 
 /* --- Footer-Links --- */

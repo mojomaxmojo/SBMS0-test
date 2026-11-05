@@ -36,19 +36,24 @@ async function fetchQ(q) {
   return extract(await r.json());
 }
 
+// Farben exakt wie Grafana-Thresholds (SBMS-Dash-LIVE.json)
 function socColor(soc) {
-  if (soc <= 10) return '#ef5350';
-  if (soc <= 20) return '#ff9f1c';
-  if (soc <= 30) return '#ffd54f';
-  return '#73d216';
+  // 0 dark-red, 10 light-red, 20 super-light-orange, 30 super-light-green,
+  // 40 green, 80 semi-dark-green, 100 dark-green
+  if (soc <= 10) return soc <= 5 ? '#5c1a1a' : '#f2495c';   // dark-red / light-red
+  if (soc <= 20) return '#ffb357';                           // super-light-orange
+  if (soc <= 30) return '#96d98d';                           // super-light-green
+  if (soc <= 80) return soc <= 40 ? '#73bf69' : '#56a64b';   // green / semi-dark-green
+  return '#37926c';                                          // dark-green
 }
 
 function cellColor(v) {
-  if (v < 2.8) return '#ef5350';
-  if (v < 3.0) return '#ffd54f';
-  if (v <= 3.45) return '#73d216';
-  if (v <= 3.65) return '#ff9f1c';
-  return '#ef5350';
+  // 0 dark-red, 2.8 light-yellow, 3.0 green, 3.2 dark-green, 3.65 dark-red
+  if (v < 2.8) return v < 2.5 ? '#5c1a1a' : '#f2495c';
+  if (v < 3.0) return '#f2cc0c';
+  if (v <= 3.2) return '#73bf69';
+  if (v <= 3.65) return '#37872d';
+  return '#5c1a1a';
 }
 
 let firstRender = true;
@@ -91,7 +96,7 @@ function update(row, cells) {
   // SOC
   const soc = Number(row.SOC);
   $('soc-fill').style.width = soc.toFixed(1) + '%';
-  $('soc-fill').style.background = `linear-gradient(90deg, #2e7d32, ${socColor(soc)})`;
+  $('soc-fill').style.background = socColor(soc);
   $('soc-label').textContent = soc.toFixed(0) + ' %';
 
   // Leistungen (W)
@@ -118,7 +123,7 @@ function update(row, cells) {
   const dmv = row.delta == null ? null : Number(row.delta) * 1000;
   $('delta-value').textContent = dmv == null ? '–' : dmv.toFixed(1) + ' mV';
   $('delta-value').style.color = dmv == null ? 'var(--txt)'
-    : dmv < 20 ? 'var(--green)' : dmv < 50 ? 'var(--orange)' : 'var(--red)';
+    : dmv <= 20 ? 'var(--green)' : dmv <= 50 ? 'var(--orange)' : 'var(--red)';
 
   // Balancing-Hinweis: ECCF-Flag
   const balancing = String(row.flags || '').includes('ECCF');
