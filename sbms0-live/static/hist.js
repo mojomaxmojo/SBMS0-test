@@ -38,10 +38,11 @@ const Q_FLOW = (ivl) =>
   `SELECT mean("PV Power W") AS pv, mean("Consumption Power W") AS cons, mean("Battery Power W") AS bat ` +
   `FROM "downsampled_1m"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()} GROUP BY time(${ivl}m) fill(null)`;
 
-const Q_PV_KWH = `SELECT sum("PV Power W") / 3600 / 1000 AS v FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
-const Q_LOAD_KWH = `SELECT sum("Consumption Power W") / 3600 / 1000 AS v FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
-const Q_CELLMINS = `SELECT min("Cell 1") AS c1, min("Cell 2") AS c2, min("Cell 3") AS c3, min("Cell 4") AS c4, min("Cell 5") AS c5, min("Cell 6") AS c6, min("Cell 7") AS c7, min("Cell 8") AS c8 FROM "downsampled_1m"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
-const Q_DELTA = `SELECT min("Cell Delta") * 1000 AS v FROM "downsampled_1m"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
+// Stats als Funktionen – Template-Literale würden den Zeitraum beim Script-Start einfrieren!
+const Q_PV_KWH = () => `SELECT sum("PV Power W") / 3600 / 1000 AS v FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
+const Q_LOAD_KWH = () => `SELECT sum("Consumption Power W") / 3600 / 1000 AS v FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
+const Q_CELLMINS = () => `SELECT min("Cell 1") AS c1, min("Cell 2") AS c2, min("Cell 3") AS c3, min("Cell 4") AS c4, min("Cell 5") AS c5, min("Cell 6") AS c6, min("Cell 7") AS c7, min("Cell 8") AS c8 FROM "downsampled_1m"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
+const Q_DELTA = () => `SELECT min("Cell Delta") * 1000 AS v FROM "downsampled_1m"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${TF()}`;
 
 /* ---------- UI: Zeitraum-Leiste ---------- */
 document.querySelectorAll('.range-btns button').forEach((b) => {
@@ -163,18 +164,18 @@ async function updateStats() {
   const val = (row) => { for (const k in row || {}) if (k !== 'time') return row[k]; return null; };
 
   try {
-    const pv = await fetchRow(Q_PV_KWH);
+    const pv = await fetchRow(Q_PV_KWH());
     const v = val(pv);
     $('stat-pv').firstChild.textContent = v == null ? '–' : Number(v).toFixed(2);
   } catch (e) { $('stat-pv').firstChild.textContent = '–'; }
 
   try {
-    const lo = await fetchRow(Q_LOAD_KWH);
+    const lo = await fetchRow(Q_LOAD_KWH());
     const v = val(lo);
     $('stat-load').firstChild.textContent = v == null ? '–' : Number(v).toFixed(2);
   } catch (e) { $('stat-load').firstChild.textContent = '–'; }
 
-  const cm = await fetchRow(Q_CELLMINS);
+  const cm = await fetchRow(Q_CELLMINS());
   const box = $('cellmins');
   if (firstMins) {
     box.innerHTML = '';
@@ -194,7 +195,7 @@ async function updateStats() {
     el.style.color = v < 2.8 ? 'var(--red)' : v < 3.0 ? '#f2cc0c' : v < 3.65 ? 'var(--green)' : 'var(--red)';
   }
 
-  const d = await fetchRow(Q_DELTA);
+  const d = await fetchRow(Q_DELTA());
   histGauge.set(d ? (d.v == null ? null : Number(d.v)) : null);
 }
 
