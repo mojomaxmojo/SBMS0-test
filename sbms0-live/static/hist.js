@@ -26,7 +26,8 @@ function groupIntervalMin() {
   return Math.max(1, Math.round(min / 1500));
 }
 
-const TF = () => `time > ${range.startMs}ms AND time <= ${range.endMs}ms`;
+// Nanosekunden-Integer (InfluxQL-sicher; ms-Literale koennen ignoriert werden)
+const TF = () => `time > ${Math.round(range.startMs * 1e6)} AND time <= ${Math.round(range.endMs * 1e6)}`;
 
 /* ---------- Queries ---------- */
 const Q_BAT = (ivl) =>

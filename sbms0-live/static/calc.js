@@ -1,9 +1,9 @@
 /* SBMS0 BERECHNUNGEN – 1:1 wie das Grafana-Dashboard (Reihenfolge, Farben) */
 'use strict';
 
-// Today = ab lokalem Mitternacht (wie Grafana now/d) – als Epoch-ms-Literal in der Query
+// Today = ab lokalem Mitternacht (wie Grafana now/d) – Nanosekunden-Integer (InfluxQL-sicher)
 const _startOfDay = new Date(); _startOfDay.setHours(0, 0, 0, 0);
-const FROM_TODAY = `time > ${_startOfDay.getTime()}ms`;
+const FROM_TODAY = `time > ${Math.round(_startOfDay.getTime() * 1e6)}`;
 
 /* ---------- Energie heute (Bargauge links) ---------- */
 const Q_ENERGY = [
