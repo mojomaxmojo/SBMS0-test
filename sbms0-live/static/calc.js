@@ -235,11 +235,11 @@ async function updateBatLevels() {
   ], ['Min', 'Mean', 'Max']);
 }
 
-/* ---------- Cell Voltages (Verlauf) ---------- */
+/* ---------- Cell Voltages (Verlauf) – RAW 1s-Daten (wie Grafana, Ausschläge sichtbar) ---------- */
 const Q_CELLVERLAUF =
-  `SELECT mean("Cell 1") AS c1, mean("Cell 2") AS c2, mean("Cell 3") AS c3, mean("Cell 4") AS c4, ` +
-  `mean("Cell 5") AS c5, mean("Cell 6") AS c6, mean("Cell 7") AS c7, mean("Cell 8") AS c8 ` +
-  `FROM "downsampled_1m"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${FROM_TODAY} GROUP BY time(1m) fill(null)`;
+  `SELECT "Cell 1" AS c1, "Cell 2" AS c2, "Cell 3" AS c3, "Cell 4" AS c4, ` +
+  `"Cell 5" AS c5, "Cell 6" AS c6, "Cell 7" AS c7, "Cell 8" AS c8 ` +
+  `FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND ${FROM_TODAY}`;
 
 // Grafana palette-classic Farben
 const PALETTE = ['#73bf69', '#5794f2', '#ff9830', '#f2495c', '#b3d4ff', '#f2cc0c', '#c15ca8', '#8ab8ff'];
@@ -282,7 +282,7 @@ async function updateCellsVerlauf() {
 async function tickSlow() {
   $('status').textContent = 'Daten OK';
   $('clock').textContent = new Date().toLocaleTimeString('de-DE');
-  await Promise.all([updateEnergy(), updateFlow(), updateBatLevels(), updateCellsVerlauf()]);
+  await Promise.all([updateEnergy(), updateFlow(), updateBatLevels()]);
 }
 async function tickFast() {
   await Promise.all([
@@ -290,10 +290,14 @@ async function tickFast() {
     updateProg(TTE_BARS, Q_TTE_STATUS, '– entlädt gerade nicht (lädt)', 'tte-panel'),
   ]);
 }
+async function tickCells() {
+  await updateCellsVerlauf();
+}
 
-Promise.all([tickSlow(), tickFast()]);
-setInterval(tickSlow, 60000);  // 1-Min-Daten
-setInterval(tickFast, 10000);  // Prognosen (Rohdaten) öfter
+Promise.all([tickSlow(), tickFast(), tickCells()]);
+setInterval(tickSlow, 60000);    // 1-Min-Daten
+setInterval(tickFast, 10000);    // Prognosen (Rohdaten) öfter
+setInterval(tickCells, 120000);  // Cell-Verlauf: RAW-Daten, weniger häufig (großes Payload)
 
 window.addEventListener('resize', () => {
   flowPlot && flowPlot.setSize({ width: $('flowchart').clientWidth, height: 220 });
