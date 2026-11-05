@@ -150,6 +150,19 @@ body {
   font-size: 13px;
 }
 
+/* Energy-Panel: Balken groesser, Hohe an Nachbarspanel angleichen */
+#energy-panel .cell-row { margin: 14px 0; }
+#energy-panel .cname.wide { font-size: 1.05rem; width: 130px; }
+#energy-panel .ledbar { height: 44px; }
+#energy-panel .cval {
+  width: 140px;
+  font-size: 1.7rem;
+  font-weight: 500;
+  color: var(--bright);
+}
+#energy-panel .cval .unit,
+#energy-panel .cval { font-variant-numeric: tabular-nums; }
+
 /* --- Delta-Gauge (SVG) --- */
 #delta-panel { display: flex; flex-direction: column; }
 #gauge { flex: 1; display: flex; align-items: center; justify-content: center; }
