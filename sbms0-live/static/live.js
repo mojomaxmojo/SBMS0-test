@@ -168,26 +168,54 @@ async function updateChart() {
   const opts = {
     width: $('powerchart').clientWidth,
     height: 300,
-    tzDate: (ts) => uPlot.tzDate(new Date(ts * 1000), 'Etc/UTC'),
+    legend: { show: false },   // eigene Legende (Min/Max/Last) darunter
     scales: { x: { time: true } },
     series: [
       {},
-      { label: 'Battery', stroke: '#5794f2', width: 1.5, fill: 'rgba(87,148,242,0.15)', spanGaps: true },
-      { label: 'PV', stroke: '#73bf69', width: 1.5, fill: 'rgba(115,191,105,0.12)', spanGaps: true },
-      { label: 'Verbrauch', stroke: '#ff9830', width: 1.5, fill: 'rgba(255,152,48,0.10)', spanGaps: true },
+      { label: 'Battery Power', stroke: '#5794f2', width: 1.5, fill: 'rgba(87,148,242,0.15)', spanGaps: true },
+      { label: 'PV Power', stroke: '#73bf69', width: 1.5, fill: 'rgba(115,191,105,0.12)', spanGaps: true },
+      { label: 'Load Power', stroke: '#ff9830', width: 1.5, fill: 'rgba(255,152,48,0.10)', spanGaps: true },
     ],
     axes: [
       { stroke: '#8e8e8e', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' } },
       { stroke: '#8e8e8e', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' },
         values: (u, vals) => vals.map((v) => (v >= 1000 ? (v / 1000).toFixed(1) + ' kW' : v + ' W')) },
     ],
-    legend: { live: true },
   };
   if (!uplot) {
     uplot = new uPlot(opts, data, $('powerchart'));
   } else {
     uplot.setData(data);
   }
+  renderLegend(data, s.columns);
+}
+
+// Grafana-Legende: Name | Min | Max | Last (unterm Chart)
+function fmtW(v) {
+  if (v == null) return '–';
+  const a = Math.abs(v);
+  if (a >= 1000) return (v / 1000).toFixed(2) + ' kW';
+  return v.toFixed(2) + ' W';
+}
+
+function renderLegend(data, columns) {
+  const labels = ['Battery Power', 'PV Power', 'Load Power'];
+  const colors = ['#5794f2', '#73bf69', '#ff9830'];
+  let html = '<table class="legend-table"><tr><th>Name</th><th>Min</th><th>Max</th><th>Last*</th></tr>';
+  for (let i = 1; i <= 3; i++) {
+    const vals = data[i].filter((v) => v != null);
+    const min = vals.length ? Math.min(...vals) : null;
+    const max = vals.length ? Math.max(...vals) : null;
+    let last = null;
+    for (let j = data[i].length - 1; j >= 0; j--) {
+      if (data[i][j] != null) { last = data[i][j]; break; }
+    }
+    html += `<tr>
+      <td><span class="lg-dot" style="background:${colors[i - 1]}"></span>${labels[i - 1]}</td>
+      <td>${fmtW(min)}</td><td>${fmtW(max)}</td><td>${fmtW(last)}</td></tr>`;
+  }
+  html += '</table>';
+  $('legend').innerHTML = html;
 }
 // Chart nur alle 60 s aktualisieren (1-Min-Daten!)
 updateChart();

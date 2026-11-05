@@ -144,6 +144,33 @@ body {
 /* --- Chart --- */
 #powerchart { width: 100%; }
 #powerchart .uplot { width: 100%; }
-#powerchart .u-legend { font-size: 12px; text-align: left; }
-#powerchart .u-series { color: var(--txt) !important; }
-#powerchart .u-value { color: var(--txt) !important; }
+
+/* Legende (Grafana-Stil) */
+.legend-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+  font-size: 13px;
+}
+.legend-table th {
+  color: var(--blue);
+  text-align: left;
+  font-weight: 400;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.legend-table th:last-child, .legend-table td:last-child { text-align: right; }
+.legend-table td {
+  color: var(--txt);
+  padding: 5px 6px;
+  border-bottom: 1px solid #22252b;
+  font-variant-numeric: tabular-nums;
+}
+.legend-table td:not(:first-child) { text-align: right; }
+.lg-dot {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: -2px;
+}
