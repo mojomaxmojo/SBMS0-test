@@ -16,6 +16,7 @@ import subprocess
 import sys
 
 SRC = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(SRC, 'sbms0-live')  # Dateien liegen im Unterordner sbms0-live/
 DST = '/home/SBMS0/sbms0-live'
 UNIT_SRC = os.path.join(SRC, 'SBMS-LiveWeb.service')
 UNIT_DST = '/etc/systemd/system/SBMS-LiveWeb.service'
@@ -30,9 +31,13 @@ def main():
     if os.geteuid() != 0:
         sys.exit('Bitte mit sudo ausführen.')
 
-    print('== 1/4 flask prüfen/installieren ==')
-    if run(['python3', '-c', 'import flask']) != 0:
-        run([sys.executable, '-m', 'pip', 'install', 'flask'])
+    print('== 1/4 flask + requests prüfen/installieren ==')
+    for mod, apt_pkg in (('flask', 'python3-flask'), ('requests', 'python3-requests')):
+        if run(['python3', '-c', f'import {mod}']) != 0:
+            # Debian 13 (PEP 668): System-Python-Pakete nur über apt
+            if run(['apt-get', 'install', '-y', apt_pkg]) != 0:
+                print('  apt fehlgeschlagen – Fallback: pip mit --break-system-packages')
+                run([sys.executable, '-m', 'pip', 'install', '--break-system-packages', mod])
 
     print('== 2/4 Dateien nach %s == ' % DST)
     os.makedirs(DST, exist_ok=True)
