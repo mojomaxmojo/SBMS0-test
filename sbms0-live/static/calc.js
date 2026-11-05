@@ -119,13 +119,12 @@ function buildProgBars(boxId, defs) {
   const out = [];
   for (const d of defs) {
     const row = document.createElement('div');
-    row.className = 'cell-row';
+    row.className = 'prog';
     row.innerHTML =
-      `<span class="cname wide">${d.alias}</span>` +
-      `<div class="ledbar thin"></div>` +
-      `<span class="cval">–</span>`;
+      `<div class="pname">${d.alias}</div>` +
+      `<div class="prow"><div class="ledbar"></div><span class="pval">–</span></div>`;
     box.appendChild(row);
-    out.push({ ...d, leds: buildLedBar(row.querySelector('.ledbar'), 60, 0, d.max, d.stops), val: row.querySelector('.cval') });
+    out.push({ ...d, leds: buildLedBar(row.querySelector('.ledbar'), 60, 0, d.max, d.stops), val: row.querySelector('.pval'), el: row });
   }
   return out;
 }
@@ -149,14 +148,18 @@ const TTE_BARS = buildProgBars('tte-bars', [
 const Q_TTF_STATUS = `SELECT last("State of Charge") - last("State of Charge") AS v FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND "Battery Current" <= 0 AND time > now() - 1m`;
 const Q_TTE_STATUS = `SELECT last("State of Charge") - last("State of Charge") AS v FROM "raw_1s"."SBMS_Metrics" WHERE ("Name" = 'SBMS0a') AND "Battery Current" >= 0 AND time > now() - 1m`;
 
-function statusText(el, text) {
-  let line = el.querySelector('.status-line');
+function statusCenter(el, text) {
+  let line = el.querySelector('.status-center');
   if (!line) {
     line = document.createElement('div');
-    line.className = 'status-line';
+    line.className = 'status-center';
+    // Zentrierter Status über die Panel-Mitte (wie Grafana "No data"-Text)
+    el.querySelectorAll('.prog').forEach((p) => (p.style.display = 'none'));
     el.appendChild(line);
   }
   line.textContent = text;
+  line.style.display = text ? 'flex' : 'none';
+  if (!text) el.querySelectorAll('.prog').forEach((p) => (p.style.display = ''));
 }
 
 async function updateProg(bars, statusQ, statusMsg, panelId) {
@@ -170,17 +173,20 @@ async function updateProg(bars, statusQ, statusMsg, panelId) {
       const num = Number(v);
       setLedBar(b.leds, 0, b.max, b.stops, Math.min(num, b.max));
       b.val.textContent = fmtMin(num);
+      // Wert-Farbe wie Grafana-Thresholds
+      b.val.style.color = b.stops === TTF_STOPS
+        ? (num <= 480 ? 'var(--green)' : num <= 1440 ? 'var(--orange)' : 'var(--red)')
+        : (num <= 7 ? 'var(--red)' : num <= 100 ? 'var(--orange)' : 'var(--green)');
     } catch (e) { b.val.textContent = 'Fehler'; }
   }
-  // Status-Hinweis nur wenn keine echten Daten (wie Grafana-Value-Mapping)
+  const panel = $(panelId);
   if (!anyData) {
     try {
       const row = await fetchRow(statusQ);
-      if (row && row.v != null) statusText($(panelId), statusMsg);
-      return;
+      if (row && row.v != null) { statusCenter(panel, statusMsg); return; }
     } catch (e) { /* ignore */ }
   }
-  statusText($(panelId), '');
+  statusCenter(panel, '');
 }
 
 /* ---------- Battery Levels (heute) – 2 Achsen ---------- */
