@@ -82,6 +82,8 @@ function setLedBar(leds, min, max, stops, value) {
   const frac = Math.max(0, Math.min(1, (value - min) / (max - min)));
   const on = Math.round(frac * leds.length);
   for (let i = 0; i < leds.length; i++) {
+    // Farbe immer aus der Gradient-Skala (wie Grafana-LED-Bargauge):
+    // gefüllte Segmente hell, ungefüllte nur abgedunkelt
     if (i < on) {
       leds[i].classList.add('on');
       leds[i].style.background = rgb(ramp(stops, min + (i + 0.5) * (max - min) / leds.length));

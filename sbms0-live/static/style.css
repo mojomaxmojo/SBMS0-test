@@ -92,7 +92,7 @@ body {
   border-radius: 3px;
   overflow: hidden;
 }
-.ledbar .led { flex: 1; border-radius: 1px; opacity: 0.12; }
+.ledbar .led { flex: 1; border-radius: 1px; opacity: 0.45; }
 .ledbar .led.on { opacity: 1; }
 
 /* --- Stat-Karten --- */
