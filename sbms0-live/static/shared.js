@@ -76,20 +76,28 @@ function buildLedBar(el, n, min, max, stops) {
   return leds;
 }
 
-/* ---- Grafana-Legende (Name/Min/Max/Last) ---- */
-function renderLegendTable(el, series) {
-  // series: [{label, color, values:[...]}]
-  let html = '<table class="legend-table"><tr><th>Name</th><th>Min</th><th>Max</th><th>Last*</th></tr>';
-  for (const s of series) {
-    const vals = s.values.filter((v) => v != null);
-    const min = vals.length ? Math.min(...vals) : null;
-    const max = vals.length ? Math.max(...vals) : null;
-    let last = null;
-    for (let j = s.values.length - 1; j >= 0; j--) {
-      if (s.values[j] != null) { last = s.values[j]; break; }
+/* ---- Grafana-Legende (frei wählbare Kennzahlen) ---- */
+function renderLegendTable(el, series, calcs) {
+  // series: [{label, color, values:[...]}], calcs z.B. ['Min','Mean','Max']
+  const cols = calcs || ['Min', 'Max', 'Last*'];
+  const stat = (vals, kind) => {
+    const v = vals.filter((x) => x != null);
+    if (!v.length) return '–';
+    switch (kind) {
+      case 'Min': return Math.min(...v);
+      case 'Max': return Math.max(...v);
+      case 'Mean': return v.reduce((a, b) => a + b, 0) / v.length;
+      default: { // Last*
+        for (let j = vals.length - 1; j >= 0; j--) if (vals[j] != null) return vals[j];
+        return null;
+      }
     }
+  };
+  let html = '<table class="legend-table"><tr><th>Name</th>' +
+    cols.map((c) => `<th>${c}</th>`).join('') + '</tr>';
+  for (const s of series) {
     html += `<tr><td><span class="lg-dot" style="background:${s.color}"></span>${s.label}</td>` +
-      `<td>${s.fmt(min)}</td><td>${s.fmt(max)}</td><td>${s.fmt(last)}</td></tr>`;
+      cols.map((c) => `<td>${s.fmt(stat(s.values, c.split('*')[0]))}</td>`).join('') + '</tr>';
   }
   html += '</table>';
   el.innerHTML = html;

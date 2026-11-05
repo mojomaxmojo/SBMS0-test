@@ -1,7 +1,9 @@
 /* SBMS0 BERECHNUNGEN – 1:1 wie das Grafana-Dashboard (Reihenfolge, Farben) */
 'use strict';
 
-const FROM_TODAY = "time > now() - 24h"; // ~Today
+// Today = ab lokalem Mitternacht (wie Grafana now/d) – als Epoch-ms-Literal in der Query
+const _startOfDay = new Date(); _startOfDay.setHours(0, 0, 0, 0);
+const FROM_TODAY = `time > ${_startOfDay.getTime()}ms`;
 
 /* ---------- Energie heute (Bargauge links) ---------- */
 const Q_ENERGY = [
@@ -34,7 +36,9 @@ async function updateEnergy() {
   for (const b of ENERGY_BARS) {
     try {
       const row = await fetchRow(b.q);
-      const v = row ? Object.values(row)[0] : null;
+      // Erster Wert != 'time' (Influx liefert Zeitstempel als erste Spalte)
+      let v = null;
+      if (row) for (const k in row) { if (k !== 'time') { v = row[k]; break; } }
       if (v == null) { b.val.textContent = '–'; continue; }
       const num = Number(v);
       setLedBar(b.leds, 0, 7, [[0, [0x73,0xbf,0x69]], [7, [0xf2,0x49,0x5c]]], Math.min(num, 7),
@@ -85,6 +89,17 @@ async function updateFlow() {
     }
     flowPlot.setData(data);
   }
+  renderLegendTable($('flowlegend'), [
+    { label: 'PV power', color: '#73bf69', values: data[1], fmt: fmtWLegend },
+    { label: 'Consumption', color: '#ff9830', values: data[2], fmt: fmtWLegend },
+    { label: 'Battery', color: batColor, values: data[3], fmt: fmtWLegend },
+  ], ['Min', 'Mean', 'Max']);
+}
+function fmtWLegend(v) {
+  if (v == null) return '–';
+  const a = Math.abs(v);
+  if (a >= 1000) return (v / 1000).toFixed(0) + ' kW';
+  return v.toFixed(0) + ' W';
 }
 
 /* ---------- Prognosen (Time to full/empty) ---------- */
@@ -207,7 +222,7 @@ async function updateBatLevels() {
   renderLegendTable($('battlegend'), [
     { label: 'Voltage', color: '#5794f2', values: data[1], fmt: (v) => v == null ? '–' : v.toFixed(2) + ' V' },
     { label: 'SOC', color: '#73bf69', values: data[2], fmt: (v) => v == null ? '–' : v.toFixed(1) + ' %' },
-  ]);
+  ], ['Min', 'Mean', 'Max']);
 }
 
 /* ---------- Cell Voltages (Verlauf) ---------- */
@@ -243,7 +258,7 @@ async function updateCellsVerlauf() {
   opts.scales = { x: { time: true }, v: { auto: true, range: [2.5, 3.8] } };
   if (!cellsPlot) cellsPlot = new uPlot(opts, data, $('cellschart'));
   else cellsPlot.setData(data);
-  renderLegendTable($('cellslegend'), legendSeries);
+  renderLegendTable($('cellslegend'), legendSeries, ['Min', 'Mean', 'Max']);
 }
 
 /* ---------- Ticker ---------- */
