@@ -245,7 +245,9 @@ async function loadAll() {
 
 function onRangeChanged() {
   $('range-info').textContent = rangeInfoText();
-  battPlot = null; flowPlot = null;   // Achsen/Intervall neu aufbauen
+  // Alte Charts sauber entfernen (uPlot haengt sonst neues DOM an!)
+  if (battPlot) { battPlot.destroy(); battPlot = null; }
+  if (flowPlot) { flowPlot.destroy(); flowPlot = null; }
   loadAll();
 }
 
