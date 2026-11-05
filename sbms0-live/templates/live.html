@@ -4,67 +4,89 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>SBMS0 LIVE</title>
+<link rel="stylesheet" href="/static/uplot.min.css">
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<div id="header">
-  <span id="status">verbinde…</span>
-  <span id="clock"></span>
+<div id="topbar">
+  <div class="nav-links">
+    <a href="http://localhost:3001/d/sbms-start-01/?from=now/d&to=now">START</a>
+    <a href="http://localhost:3001/d/sbms-calc-01/?from=now/d&to=now">BERECHNUNGEN</a>
+    <a href="http://localhost:3001/d/sbms-hist-01/?from=now-30d&to=now">HISTORIE</a>
+  </div>
+  <div class="right">
+    <span id="status">verbinde…</span>
+    <span id="clock"></span>
+  </div>
 </div>
+
+<div class="row-title">Live-Werte</div>
 
 <div class="grid">
 
-  <div class="card" id="soc-card">
-    <h2>State of Charge</h2>
-    <div id="soc-bar">
-      <div id="soc-fill"></div>
-      <div id="soc-label">–</div>
+  <!-- SOC: volle Breite, LED-Bargauge -->
+  <div class="panel" id="soc-panel">
+    <div class="panel-title">SOC</div>
+    <div class="soc-line">
+      <div class="ledbar" id="soc-bar"></div>
+      <div class="soc-value"><span id="soc-num">–</span><span class="unit">%</span></div>
     </div>
   </div>
 
-  <div class="grid" id="power-row">
-    <div class="card" id="power-card">
-      <h2>Leistung</h2>
-      <table>
-        <tr><td>PV</td><td id="p-pv">–</td></tr>
-        <tr><td>Batterie</td><td id="p-bat">–</td></tr>
-        <tr><td>Verbrauch</td><td id="p-load">–</td></tr>
-      </table>
-      <div class="sub" id="p-currents">–</div>
+  <!-- Zeile 2: Power-Stats + Akku/Flags -->
+  <div class="panel stat-card">
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-name">PV</div>
+        <div class="stat-value green"><span id="p-pv">–</span><span class="unit"> W</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name">Battery</div>
+        <div class="stat-value blue"><span id="p-bat">–</span><span class="unit"> W</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name">Verbrauch</div>
+        <div class="stat-value orange"><span id="p-load">–</span><span class="unit"> W</span></div>
+      </div>
     </div>
-
-    <div class="card">
-      <h2>Akku</h2>
-      <div class="value" id="v-bat">–<span class="unit"> V</span></div>
-      <div class="sub" id="v-current">–</div>
-      <div class="sub" id="v-temp">–</div>
-    </div>
+    <div class="stat-sub" id="p-currents">–</div>
   </div>
 
-  <div class="card" id="cells-card">
-    <h2>Zellspannungen</h2>
+  <div class="panel stat-card">
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-name">Time</div>
+        <div class="stat-value small" id="clock2">–</div>
+      </div>
+      <div class="stat wide">
+        <div class="stat-name">Flags</div>
+        <div class="stat-value orange small" id="flags-de">–</div>
+      </div>
+    </div>
+    <div class="stat-sub" id="akku-line">–</div>
+  </div>
+
+  <!-- Zeile 3: Cell Voltages LCD + Cells Delta Gauge -->
+  <div class="panel" id="cells-panel">
+    <div class="panel-title">Cell Voltages (LCD-Balken)</div>
     <div id="cells"></div>
-    <div id="delta-row">
-      <span>Cell Delta:</span>
-      <span id="delta-value">–</span>
-      <span id="balancing" style="color:var(--orange);display:none">⚡ Balancing</span>
-    </div>
   </div>
 
-  <div class="card" id="flags-card">
-    <h2>Status / Flags</h2>
-    <div id="flags-de">–</div>
+  <div class="panel" id="delta-panel">
+    <div class="panel-title">Cells Delta</div>
+    <div id="gauge"></div>
+  </div>
+
+  <!-- Zeile 4: Leistung (Live-Verlauf) Today -->
+  <div class="panel" id="chart-panel">
+    <div class="panel-title">Leistung (Live-Verlauf) <span class="override-hint">⏱ Today so far · 1min</span></div>
+    <div id="powerchart"></div>
   </div>
 
 </div>
 
-<div id="links">
-  <a href="http://localhost:3001/d/sbms-start-01/?from=now/d&to=now">Grafana START</a>
-  <a href="http://localhost:3001/d/sbms-calc-01/?from=now/d&to=now">BERECHNUNGEN</a>
-  <a href="http://localhost:3001/d/sbms-hist-01/?from=now-30d&to=now">HISTORIE</a>
-</div>
-
+<script src="/static/uplot.iife.min.js"></script>
 <script src="/static/live.js"></script>
 </body>
 </html>

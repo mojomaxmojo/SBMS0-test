@@ -56,6 +56,18 @@ def main():
                 shutil.copy2(src, dst)
     run(['chown', '-R', 'dietpi:dietpi', DST])
 
+    print('== 2b/4 uPlot (Chart-Lib) herunterladen ==')
+    uplot_js = os.path.join(DST, 'static', 'uplot.iife.min.js')
+    uplot_css = os.path.join(DST, 'static', 'uplot.min.css')
+    if not (os.path.exists(uplot_js) and os.path.exists(uplot_css)):
+        run(['curl', '-sfL', '-o', uplot_js,
+             'https://cdn.jsdelivr.net/npm/uplot@1.6.31/dist/uPlot.iife.min.js'])
+        run(['curl', '-sfL', '-o', uplot_css,
+             'https://cdn.jsdelivr.net/npm/uplot@1.6.31/dist/uPlot.min.css'])
+        run(['chown', '-R', 'dietpi:dietpi', DST])
+    else:
+        print('  bereits vorhanden – ok')
+
     print('== 3/4 systemd-Dienst ==')
     shutil.copy2(UNIT_SRC, UNIT_DST)
     run(['systemctl', 'daemon-reload'])

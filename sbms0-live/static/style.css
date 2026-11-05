@@ -1,135 +1,146 @@
-/* SBMS0 Live-Web – Touchscreen-Layout, dunkel */
+/* SBMS0 Live-Web – Grafana-Look (LED-Bargauges, Stat-Werte, Gauge, uPlot) */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #111418;
-  --card: #1c2128;
-  --txt: #e8eaed;
-  --dim: #9aa0a6;
-  --green: #73d216;
-  --blue: #57a0ff;
-  --orange: #ff9f1c;
-  --red: #ef5350;
+  --bg: #111217;
+  --panel: #181b1f;
+  --panel-border: #2c3235;
+  --txt: #cccccc;
+  --bright: #ffffff;
+  --dim: #8e8e8e;
+  --green: #73bf69;
+  --blue: #5794f2;
+  --orange: #ff9830;
+  --red: #f2495c;
 }
 
 body {
   background: var(--bg);
   color: var(--txt);
-  font-family: system-ui, -apple-system, sans-serif;
-  padding: 10px;
+  font-family: "Roboto", system-ui, sans-serif;
+  font-size: 14px;
+  padding: 8px;
   user-select: none;
 }
 
-.grid {
-  display: grid;
-  gap: 10px;
-}
-
-.card {
-  background: var(--card);
-  border-radius: 14px;
-  padding: 14px 18px;
-}
-
-.card h2 {
-  font-size: 0.9rem;
-  color: var(--dim);
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-
-.card .value {
-  font-size: 3.4rem;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.card .unit { font-size: 1.4rem; font-weight: 400; color: var(--dim); }
-.card .sub { font-size: 1.1rem; color: var(--dim); margin-top: 4px; }
-
-/* --- Kopfzeile --- */
-#header {
+/* --- Topbar (Grafana-Stil) --- */
+#topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 6px 12px;
+  padding: 2px 4px 10px;
 }
-#clock { font-size: 1.6rem; color: var(--dim); }
-#status { font-size: 1rem; color: var(--dim); }
+#topbar .nav-links { display: flex; gap: 8px; }
+#topbar a {
+  color: var(--txt);
+  text-decoration: none;
+  background: #22252b;
+  padding: 7px 14px;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+}
+#topbar .right { display: flex; gap: 18px; align-items: center; color: var(--dim); }
 #status.err { color: var(--red); }
 
-/* --- SOC: volle Breite --- */
-#soc-card { grid-column: 1 / -1; }
-#soc-bar {
-  height: 46px;
-  background: #2a2f36;
-  border-radius: 10px;
+.row-title {
+  color: var(--dim);
+  font-size: 13px;
+  padding: 0 4px 6px;
+}
+
+/* --- Grid / Panels --- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 8px;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  padding: 10px 14px;
+  grid-column: span 24;
+}
+.panel-title {
+  color: var(--dim);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.override-hint { color: var(--blue); font-size: 11px; margin-left: 8px; }
+
+#soc-panel   { grid-column: span 24; }
+#cells-panel { grid-column: span 19; }
+#delta-panel { grid-column: span 5; }
+#chart-panel { grid-column: span 24; min-height: 340px; }
+
+/* --- LED-Bargauge (Grafana "gradient"-LED-Style) --- */
+.soc-line { display: flex; align-items: center; gap: 16px; }
+.soc-value { font-size: 2.6rem; font-weight: 500; color: var(--bright); white-space: nowrap; }
+.soc-value .unit { color: var(--orange); font-size: 1.6rem; }
+
+.ledbar {
+  flex: 1;
+  height: 42px;
+  display: flex;
+  gap: 2px;
+  background: #22252b;
+  padding: 3px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-top: 8px;
-  position: relative;
 }
-#soc-fill {
-  height: 100%;
-  width: 0%;
-  background: #73bf69;
-  transition: width 0.4s, background 0.4s;
+.ledbar .led { flex: 1; border-radius: 1px; opacity: 0.12; }
+.ledbar .led.on { opacity: 1; }
+
+/* --- Stat-Karten --- */
+.stats-row { display: flex; gap: 24px; flex-wrap: wrap; }
+.stat { min-width: 120px; }
+.stat.wide { flex: 1; min-width: 200px; }
+.stat-name { color: var(--dim); font-size: 13px; margin-bottom: 4px; }
+.stat-value {
+  font-size: 2.4rem;
+  font-weight: 500;
+  color: var(--bright);
+  white-space: nowrap;
 }
-#soc-label {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; font-weight: 700;
-}
+.stat-value.small { font-size: 1.5rem; line-height: 2.4rem; font-weight: 400; }
+.stat-value .unit { font-size: 1.3rem; color: var(--dim); font-weight: 400; }
+.green  { color: var(--green) !important; }
+.blue   { color: var(--blue) !important; }
+.orange { color: var(--orange) !important; }
+.stat-sub { color: var(--dim); font-size: 13px; margin-top: 10px; }
+#flags-de.err { color: var(--red); }
 
-/* --- Power-Reihe: 2 Spalten --- */
-#power-row { grid-template-columns: 1fr 1fr; }
-
-#power-card .value { font-size: 2.6rem; }
-#power-card table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-#power-card td { padding: 8px 4px; font-size: 1.5rem; }
-#power-card td:first-child { color: var(--dim); }
-#power-card td:last-child { text-align: right; font-weight: 600; }
-
-/* --- Zellen: 2 Spalten-Balken --- */
-#cells-card { grid-column: 1 / -1; }
+/* --- Zellen (LED-LCD-Style) --- */
 .cell-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 5px 0;
-  font-size: 1.35rem;
+  margin: 4px 0;
 }
-.cell-row .cname { width: 80px; color: var(--dim); }
-.cell-row .cbar {
-  flex: 1;
-  height: 30px;
-  background: #2a2f36;
-  border-radius: 8px;
-  overflow: hidden;
+.cell-row .cname { width: 52px; color: var(--txt); font-size: 13px; }
+.cell-row .ledbar { height: 26px; }
+.cell-row .cval {
+  width: 90px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
+  font-size: 13px;
 }
-.cell-row .cfill {
-  height: 100%;
-  transition: width 0.4s, background 0.4s;
-}
-.cell-row .cval { width: 110px; text-align: right; font-variant-numeric: tabular-nums; }
 
-#delta-row {
-  display: flex; align-items: center; gap: 14px;
-  margin-top: 10px; font-size: 1.4rem;
+/* --- Delta-Gauge (SVG) --- */
+#delta-panel { display: flex; flex-direction: column; }
+#gauge { flex: 1; display: flex; align-items: center; justify-content: center; }
+#gauge svg text {
+  fill: var(--bright);
+  font-size: 34px;
+  font-weight: 500;
 }
-#delta-value { font-weight: 700; }
+#gauge svg .gunit { fill: var(--dim); font-size: 15px; }
 
-/* --- Flags --- */
-#flags-card { grid-column: 1 / -1; }
-#flags-de { font-size: 1.2rem; margin-top: 4px; color: var(--orange); }
-#flags-de.err { color: var(--red); font-weight: 600; }
-
-/* --- Footer-Links --- */
-#links {
-  display: flex; gap: 12px; justify-content: center;
-  padding: 14px 0 4px;
-}
-#links a {
-  color: var(--dim); text-decoration: none;
-  background: var(--card); padding: 10px 18px; border-radius: 10px;
-  font-size: 1rem;
-}
+/* --- Chart --- */
+#powerchart { width: 100%; }
+#powerchart .uplot { width: 100%; }
+#powerchart .u-legend { font-size: 12px; text-align: left; }
+#powerchart .u-series { color: var(--txt) !important; }
+#powerchart .u-value { color: var(--txt) !important; }
