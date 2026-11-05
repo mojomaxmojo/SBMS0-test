@@ -74,6 +74,9 @@ body {
 #delta-panel { grid-column: span 5; }
 #chart-panel { grid-column: span 24; min-height: 340px; }
 
+/* Zeile 2: Leistung links 50%, Time+Flags rechts 50% */
+.panel.stat-card { grid-column: span 12; }
+
 /* --- LED-Bargauge (Grafana "gradient"-LED-Style) --- */
 .soc-line { display: flex; align-items: center; gap: 16px; }
 .soc-value { font-size: 2.6rem; font-weight: 500; color: var(--bright); white-space: nowrap; }
