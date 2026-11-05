@@ -27,6 +27,11 @@ app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 @app.route('/')
 def index():
+    return send_from_directory('templates', 'start.html')
+
+
+@app.route('/live')
+def live():
     return send_from_directory('templates', 'live.html')
 
 
