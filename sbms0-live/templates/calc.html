@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>SBMS0 BERECHNUNGEN</title>
 <link rel="stylesheet" href="/static/uplot.min.css">
-<link rel="stylesheet" href="/static/style.css?v=4">
+<link rel="stylesheet" href="/static/style.css?v=5">
 </head>
 <body>
 
@@ -65,11 +65,19 @@
     <div class="panel-title">Cell Voltages (Verlauf)</div>
     <div id="cellschart"></div>
     <div id="cellslegend"></div>
+    <div class="cell-legend">
+      <span class="cl-item"><span class="cl-swatch" style="background:#f2495c"></span>&lt; 2,8 V (rot)</span>
+      <span class="cl-item"><span class="cl-swatch" style="background:#f2cc0c"></span>2,8 – 3,0 V (gelb)</span>
+      <span class="cl-item"><span class="cl-swatch" style="background:#96d98d"></span>3,0 – 3,2 V (hellgrün)</span>
+      <span class="cl-item"><span class="cl-swatch" style="background:#73bf69"></span>3,2 – 3,65 V (grün)</span>
+      <span class="cl-item"><span class="cl-swatch" style="background:#f2495c"></span>&gt; 3,65 V (rot)</span>
+      <span class="cl-item" style="color:var(--dim)">Skala 2,5 – 3,8 V</span>
+    </div>
   </div>
 </div>
 
 <script src="/static/uplot.iife.min.js"></script>
 <script src="/static/shared.js?v=2"></script>
-<script src="/static/calc.js?v=3"></script>
+<script src="/static/calc.js?v=4"></script>
 </body>
 </html>

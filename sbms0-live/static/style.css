@@ -77,6 +77,23 @@ body {
 /* Zeile 2: Leistung links 50%, Time+Flags rechts 50% */
 .panel.stat-card { grid-column: span 12; }
 
+/* Calc-Seite: Energy/Flow und Prognosen je 50% */
+#energy-panel, #flow-panel { grid-column: span 12; }
+#ttf-panel, #tte-panel { grid-column: span 12; }
+#batt-panel, #cells-verlauf-panel { grid-column: span 24; }
+
+/* Zell-Farb-Legende */
+.cell-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 8px 2px 2px;
+  font-size: 13px;
+  color: var(--dim);
+}
+.cell-legend .cl-item { display: flex; align-items: center; gap: 6px; }
+.cell-legend .cl-swatch { width: 22px; height: 12px; border-radius: 2px; display: inline-block; }
+
 /* --- LED-Bargauge (Grafana "gradient"-LED-Style) --- */
 .soc-line { display: flex; align-items: center; gap: 16px; }
 .soc-value { font-size: 2.6rem; font-weight: 500; color: var(--bright); white-space: nowrap; }
