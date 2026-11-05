@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>SBMS0 LIVE</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div id="header">
+  <span id="status">verbinde…</span>
+  <span id="clock"></span>
+</div>
+
+<div class="grid">
+
+  <div class="card" id="soc-card">
+    <h2>State of Charge</h2>
+    <div id="soc-bar">
+      <div id="soc-fill"></div>
+      <div id="soc-label">–</div>
+    </div>
+  </div>
+
+  <div class="grid" id="power-row">
+    <div class="card" id="power-card">
+      <h2>Leistung</h2>
+      <table>
+        <tr><td>PV</td><td id="p-pv">–</td></tr>
+        <tr><td>Batterie</td><td id="p-bat">–</td></tr>
+        <tr><td>Verbrauch</td><td id="p-load">–</td></tr>
+      </table>
+      <div class="sub" id="p-currents">–</div>
+    </div>
+
+    <div class="card">
+      <h2>Akku</h2>
+      <div class="value" id="v-bat">–<span class="unit"> V</span></div>
+      <div class="sub" id="v-current">–</div>
+      <div class="sub" id="v-temp">–</div>
+    </div>
+  </div>
+
+  <div class="card" id="cells-card">
+    <h2>Zellspannungen</h2>
+    <div id="cells"></div>
+    <div id="delta-row">
+      <span>Cell Delta:</span>
+      <span id="delta-value">–</span>
+      <span id="balancing" style="color:var(--orange);display:none">⚡ Balancing</span>
+    </div>
+  </div>
+
+  <div class="card" id="flags-card">
+    <h2>Status / Flags</h2>
+    <div id="flags-de">–</div>
+  </div>
+
+</div>
+
+<div id="links">
+  <a href="http://localhost:3001/d/sbms-start-01/?from=now/d&to=now">Grafana START</a>
+  <a href="http://localhost:3001/d/sbms-calc-01/?from=now/d&to=now">BERECHNUNGEN</a>
+  <a href="http://localhost:3001/d/sbms-hist-01/?from=now-30d&to=now">HISTORIE</a>
+</div>
+
+<script src="/static/live.js"></script>
+</body>
+</html>
