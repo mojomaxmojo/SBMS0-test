@@ -226,9 +226,10 @@ async function updateBatLevels() {
   opts.axes = [
     { stroke: '#8e8e8e', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' },
       values: (u, vals) => vals.map((v) => new Date(v).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })) },
-    { scale: 'volt', stroke: '#5794f2', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' }, side: 3,
+    // size explizit setzen, sonst wird bei "26.50 V" die fuehrende 2 abgeschnitten!
+    { scale: 'volt', stroke: '#5794f2', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' }, side: 3, size: 70,
       values: (u, vals) => vals.map((v) => Number(v).toFixed(2) + ' V') },
-    { scale: 'soc', stroke: '#73bf69', grid: { show: false }, ticks: { stroke: '#2c3235' }, side: 1,
+    { scale: 'soc', stroke: '#73bf69', grid: { show: false }, ticks: { stroke: '#2c3235' }, side: 1, size: 60,
       values: (u, vals) => vals.map((v) => Number(v).toFixed(0) + ' %') },
   ];
   if (!battPlot) battPlot = new uPlot(opts, data, $('battchart'));

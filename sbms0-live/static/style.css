@@ -163,6 +163,8 @@ body {
 /* --- Chart --- */
 #powerchart { width: 100%; }
 #powerchart .uplot, #flowchart .uplot, #battchart .uplot, #cellschart .uplot { width: 100%; }
+/* uPlot-Achsen-Labels nicht abschneiden */
+.uplot .u-axis { overflow: visible; }
 #powerchart .u-legend, #flowchart .u-legend, #battchart .u-legend, #cellschart .u-legend {
   font-size: 12px;
   text-align: left;
