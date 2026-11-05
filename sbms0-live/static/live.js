@@ -38,12 +38,12 @@ const SOC_STOPS = [
 ];
 
 const CELL_STOPS = [
-  [0, [0xf2, 0x49, 0x5c]],    // Base: rot (auch unter 2.5 V)
   [2.8, [0xf2, 0xcc, 0x0c]],  // yellow
   [3.0, [0x96, 0xd9, 0x8d]],  // light-green
   [3.2, [0x73, 0xbf, 0x69]],  // green
   [3.65, [0xf2, 0x49, 0x5c]], // red
 ];
+const CELL_BASE = [0xf2, 0x49, 0x5c]; // Base: rot – unter 2.8 V solid rot (auch < 2.5 V)
 
 function ramp(stops, v) {
   if (v <= stops[0][0]) return stops[0][1];
@@ -58,8 +58,8 @@ function ramp(stops, v) {
 }
 const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 const dim = (c, f = 0.28) => c.map((x) => Math.round(x * f + 0x22 * (1 - f)));
-const socColor = (soc) => rgb(ramp(SOC_STOPS, soc));
-const cellColor = (v) => rgb(ramp(CELL_STOPS, v));
+const cellColorRaw = (v) => (v < 2.8 ? CELL_BASE : ramp(CELL_STOPS, v));
+const cellColor = (v) => rgb(cellColorRaw(v));
 
 /* ---------- LED-Bargauge ---------- */
 function buildLedBar(el, n, min, max, stops) {
@@ -77,18 +77,21 @@ function buildLedBar(el, n, min, max, stops) {
   return leds;
 }
 
-function setLedBar(leds, min, max, stops, value) {
+function setLedBar(leds, min, max, stops, value, colorFn) {
   if (value == null) return;
+  const cfn = colorFn || ((v) => ramp(stops, v));
   const frac = Math.max(0, Math.min(1, (value - min) / (max - min)));
   const on = Math.round(frac * leds.length);
   for (let i = 0; i < leds.length; i++) {
     // Farbe immer aus der Gradient-Skala (wie Grafana-LED-Bargauge):
     // gefüllte Segmente hell, ungefüllte nur abgedunkelt
+    const c = cfn(min + (i + 0.5) * (max - min) / leds.length);
     if (i < on) {
       leds[i].classList.add('on');
-      leds[i].style.background = rgb(ramp(stops, min + (i + 0.5) * (max - min) / leds.length));
+      leds[i].style.background = rgb(c);
     } else {
       leds[i].classList.remove('on');
+      leds[i].style.background = rgb(dim(c));
     }
   }
 }
@@ -246,7 +249,7 @@ function update(row, cells) {
     const v = cells ? cells['c' + i] : null;
     const c = CELL_LEDS[i - 1];
     if (v == null) { c.val.textContent = '–'; continue; }
-    setLedBar(c.leds, 2.5, 3.8, CELL_STOPS, Number(v));
+    setLedBar(c.leds, 2.5, 3.8, CELL_STOPS, Number(v), cellColorRaw);
     c.val.textContent = Number(v).toFixed(3) + ' V';
   }
 
