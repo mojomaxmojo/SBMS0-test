@@ -50,7 +50,7 @@ def query():
         r = requests.get(
             INFLUX_URL,
             params={'db': INFLUX_DB, 'q': q, 'epoch': 'ms', 'throttle': '0'},
-            timeout=5,
+            timeout=60,  # kWh-Summen über große Zeiträume brauchen länger
         )
         return (r.text, r.status_code, {'Content-Type': 'application/json'})
     except requests.RequestException as e:

@@ -158,11 +158,20 @@ async function updateFlow() {
 
 /* ---------- Stats ---------- */
 async function updateStats() {
-  const pv = await fetchRow(Q_PV_KWH);
-  const lo = await fetchRow(Q_LOAD_KWH);
+  // Jede Stat einzeln – ein Fehler blockiert nicht die anderen
   const val = (row) => { for (const k in row || {}) if (k !== 'time') return row[k]; return null; };
-  $('stat-pv').firstChild.textContent = val(pv) == null ? '–' : Number(val(pv)).toFixed(2);
-  $('stat-load').firstChild.textContent = val(lo) == null ? '–' : Number(val(lo)).toFixed(2);
+
+  try {
+    const pv = await fetchRow(Q_PV_KWH);
+    const v = val(pv);
+    $('stat-pv').firstChild.textContent = v == null ? '–' : Number(v).toFixed(2);
+  } catch (e) { $('stat-pv').firstChild.textContent = '–'; }
+
+  try {
+    const lo = await fetchRow(Q_LOAD_KWH);
+    const v = val(lo);
+    $('stat-load').firstChild.textContent = v == null ? '–' : Number(v).toFixed(2);
+  } catch (e) { $('stat-load').firstChild.textContent = '–'; }
 
   const cm = await fetchRow(Q_CELLMINS);
   const box = $('cellmins');
@@ -229,6 +238,8 @@ async function loadAll() {
     $('status').classList.add('err');
   }
 }
+
+/* ---------- Init ---------- */
 
 function onRangeChanged() {
   $('range-info').textContent = rangeInfoText();
