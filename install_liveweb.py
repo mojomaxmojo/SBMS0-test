@@ -40,15 +40,20 @@ def main():
                 run([sys.executable, '-m', 'pip', 'install', '--break-system-packages', mod])
 
     print('== 2/4 Dateien nach %s == ' % DST)
-    os.makedirs(DST, exist_ok=True)
-    for item in ('app.py', 'static', 'templates'):
-        src = os.path.join(SRC, item)
-        dst = os.path.join(DST, item)
-        if os.path.isdir(src):
-            shutil.rmtree(dst, ignore_errors=True)
-            shutil.copytree(src, dst)
-        else:
-            shutil.copy2(src, dst)
+    if os.path.abspath(SRC) == os.path.abspath(DST):
+        # Installer wurde direkt im Zielverzeichnis ausgeführt (git checkout) –
+        # Dateien sind bereits am richtigen Ort.
+        print('  Quelle == Ziel (git checkout) – Kopieren entfällt')
+    else:
+        os.makedirs(DST, exist_ok=True)
+        for item in ('app.py', 'static', 'templates'):
+            src = os.path.join(SRC, item)
+            dst = os.path.join(DST, item)
+            if os.path.isdir(src):
+                shutil.rmtree(dst, ignore_errors=True)
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
     run(['chown', '-R', 'dietpi:dietpi', DST])
 
     print('== 3/4 systemd-Dienst ==')
