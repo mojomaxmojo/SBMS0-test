@@ -117,6 +117,8 @@ async function updateChart() {
   const opts = uplotBaseOpts(300,
     (u, vals) => vals.map((v) => (Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + ' kW' : v + ' W')));
   opts.width = $('powerchart').clientWidth;
+  opts.legend = { show: true, live: true };
+  opts.cursor = { x: true, y: false, points: { show: false } };
   opts.series = [
     {},
     { label: 'Battery Power', stroke: '#5794f2', width: 1.5, fill: 'rgba(87,148,242,0.15)', spanGaps: true },

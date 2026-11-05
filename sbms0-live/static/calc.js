@@ -74,6 +74,8 @@ async function updateFlow() {
   const opts = uplotBaseOpts(220,
     (u, vals) => vals.map((v) => (Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + ' kW' : v + ' W')));
   opts.width = $('flowchart').clientWidth;
+  opts.legend = { show: true, live: true };
+  opts.cursor = { x: true, y: false, points: { show: false } };
   opts.series = [
     {},
     { label: 'PV power', stroke: '#73bf69', width: 1.5, fill: 'rgba(115,191,105,0.12)', spanGaps: true },
@@ -207,6 +209,8 @@ async function updateBatLevels() {
   const opts = uplotBaseOpts(300,
     (u, vals) => vals.map((v) => v.toFixed(2) + ' V'));
   opts.width = $('battchart').clientWidth;
+  opts.legend = { show: true, live: true };
+  opts.cursor = { x: true, y: false, points: { show: false } };
   opts.series = [
     {},
     { label: 'Voltage', stroke: '#5794f2', width: 2, spanGaps: true, scale: 'volt' },
@@ -239,6 +243,9 @@ const Q_CELLVERLAUF =
 
 // Grafana palette-classic Farben
 const PALETTE = ['#73bf69', '#5794f2', '#ff9830', '#f2495c', '#b3d4ff', '#f2cc0c', '#c15ca8', '#8ab8ff'];
+function hexA(hex, a) {
+  return `rgba(${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)},${a})`;
+}
 let cellsPlot = null;
 async function updateCellsVerlauf() {
   const s = await fetchSeries(Q_CELLVERLAUF);
@@ -251,12 +258,16 @@ async function updateCellsVerlauf() {
   const opts = uplotBaseOpts(300,
     (u, vals) => vals.map((v) => v.toFixed(3) + ' V'));
   opts.width = $('cellschart').clientWidth;
+  // Grafana-Look: Flächenfüllung + Live-Werte bei Maus-Hover
+  opts.legend = { show: true, live: true, mount: () => {} };
+  opts.cursor = { x: true, y: false, points: { show: false } };
   opts.series = [{}];
   const legendSeries = [];
   for (let i = 1; i <= 8; i++) {
     opts.series.push({
       label: `Cell ${i}`, stroke: PALETTE[i - 1], width: 1, spanGaps: true,
       scale: 'v', points: { show: false },
+      fill: hexA(PALETTE[i - 1], 0.08),
       value: (u, v) => v == null ? '–' : v.toFixed(3) + ' V',
     });
     legendSeries.push({ label: `Cell ${i}`, color: PALETTE[i - 1], values: data[i], fmt: (v) => v == null ? '–' : v.toFixed(3) + ' V' });
