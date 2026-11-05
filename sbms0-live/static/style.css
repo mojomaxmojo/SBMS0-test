@@ -116,19 +116,20 @@ body {
 .stats-row { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-evenly; }
 .stat { min-width: 120px; text-align: center; }
 .stat.wide { flex: 1; min-width: 200px; text-align: left; }
-.stat-name { color: var(--dim); font-size: 13px; margin-bottom: 1px; }
+.stat-name { color: var(--dim); font-size: 13px; margin-bottom: 0; }
 .stat-value {
-  font-size: 3.2rem;
-  font-weight: 700;
+  font-size: 3.9rem;
+  font-weight: 500;
   color: var(--bright);
   white-space: nowrap;
+  line-height: 1.05;
 }
 .stat-value.small { font-size: 1.5rem; line-height: 2.4rem; font-weight: 400; }
 .stat-value .unit { font-size: 1.3rem; color: var(--dim); font-weight: 400; }
 .green  { color: var(--green) !important; }
 .blue   { color: var(--blue) !important; }
 .orange { color: var(--orange) !important; }
-.stat-sub { color: var(--dim); font-size: 13px; margin-top: 10px; text-align: center; }
+.stat-sub { color: var(--dim); font-size: 13px; margin-top: 2px; text-align: center; }
 #flags-de.err { color: var(--red); }
 
 /* --- Zellen (LED-LCD-Style) --- */
