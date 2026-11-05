@@ -213,10 +213,12 @@ async function updateBatLevels() {
   opts.cursor = { x: true, y: false, points: { show: false } };
   opts.series = [
     {},
-    { label: 'Voltage', stroke: '#5794f2', width: 2, spanGaps: true, scale: 'volt' },
+    { label: 'Voltage', stroke: '#5794f2', width: 2, spanGaps: true, scale: 'volt',
+      fill: 'rgba(87,148,242,0.12)' },
     { label: 'SOC', stroke: '#73bf69', width: 2, spanGaps: true, scale: 'soc',
       // gepunktet wie Grafana (dash [0,10] zeichnet in uPlot nichts -> Punkte nutzen)
-      points: { show: true, size: 3, stroke: '#73bf69', fill: '#73bf69', space: 8 } },
+      points: { show: true, size: 3, stroke: '#73bf69', fill: '#73bf69', space: 8 },
+      fill: 'rgba(115,191,105,0.18)' },
   ];
   opts.scales = { x: { time: true },
     volt: { auto: true, range: (u, dmin, dmax) => [Math.floor(dmin) , Math.ceil(dmax)] },
