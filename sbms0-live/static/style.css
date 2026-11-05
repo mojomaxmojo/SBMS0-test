@@ -113,7 +113,7 @@ body {
 .ledbar .led.on { opacity: 1; }
 
 /* --- Stat-Karten --- */
-.stats-row { display: flex; gap: 24px; flex-wrap: wrap; }
+.stats-row { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-evenly; }
 .stat { min-width: 120px; text-align: center; }
 .stat.wide { flex: 1; min-width: 200px; text-align: left; }
 .stat-name { color: var(--dim); font-size: 13px; margin-bottom: 4px; }
