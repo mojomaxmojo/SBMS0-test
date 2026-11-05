@@ -30,6 +30,11 @@ def index():
     return send_from_directory('templates', 'live.html')
 
 
+@app.route('/calc')
+def calc():
+    return send_from_directory('templates', 'calc.html')
+
+
 @app.route('/query')
 def query():
     """InfluxDB-1.8-Proxy: nimmt ?q=...&epoch=ms entgegen, liefert JSON."""

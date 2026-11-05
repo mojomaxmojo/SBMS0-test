@@ -122,7 +122,9 @@ body {
   margin: 4px 0;
 }
 .cell-row .cname { width: 52px; color: var(--txt); font-size: 13px; }
+.cell-row .cname.wide { width: 130px; }
 .cell-row .ledbar { height: 26px; }
+.cell-row .ledbar.thin { height: 22px; }
 .cell-row .cval {
   width: 90px;
   text-align: right;
@@ -174,3 +176,9 @@ body {
   margin-right: 8px;
   vertical-align: -2px;
 }
+.status-line {
+  color: var(--dim);
+  font-size: 1rem;
+  margin-top: 6px;
+}
+#topbar a.active { background: #3a3f46; color: var(--bright); }

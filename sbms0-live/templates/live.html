@@ -11,9 +11,10 @@
 
 <div id="topbar">
   <div class="nav-links">
-    <a href="http://localhost:3001/d/sbms-start-01/?from=now/d&to=now">START</a>
-    <a href="http://localhost:3001/d/sbms-calc-01/?from=now/d&to=now">BERECHNUNGEN</a>
-    <a href="http://localhost:3001/d/sbms-hist-01/?from=now-30d&to=now">HISTORIE</a>
+    <a href="/" class="active">LIVE</a>
+    <a href="/calc">BERECHNUNGEN</a>
+    <a href="http://localhost:3001/d/sbms-start-01/?from=now/d&to=now">START (Grafana)</a>
+    <a href="http://localhost:3001/d/sbms-hist-01/?from=now-30d&to=now">HISTORIE (Grafana)</a>
   </div>
   <div class="right">
     <span id="status">verbinde…</span>
@@ -88,6 +89,7 @@
 </div>
 
 <script src="/static/uplot.iife.min.js"></script>
-<script src="/static/live.js?v=4"></script>
+<script src="/static/shared.js"></script>
+<script src="/static/live.js?v=5"></script>
 </body>
 </html>

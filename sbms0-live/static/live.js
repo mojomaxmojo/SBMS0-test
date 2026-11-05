@@ -1,4 +1,5 @@
-/* SBMS0 Live-Web – Grafana-Look: LED-Bargauges, Stats, Gauge, uPlot-Chart */
+/* SBMS0 Live-Web – Grafana-Look (LED-Bargauges, Stats, Gauge, uPlot-Chart)
+   Benötigt shared.js ($, fmt, fetchRow, fetchSeries, ramp, rgb, dim, setLedBar, buildLedBar) */
 'use strict';
 
 const Q_LAST =
@@ -23,10 +24,7 @@ const Q_TODAY =
   "FROM \"downsampled_1m\".\"SBMS_Metrics\" WHERE \"Name\" = 'SBMS0a' AND time > now() - 24h " +
   "GROUP BY time(1m) fill(null)";
 
-const $ = (id) => document.getElementById(id);
-const fmt = (v, d = 2) => (v == null ? '–' : Number(v).toFixed(d));
-
-/* ---------- Farblogik: Grafana-Thresholds ---------- */
+/* ---------- Farb-Stops (Grafana-Thresholds) ---------- */
 const SOC_STOPS = [
   [0, [0x66, 0x0e, 0x0e]],   // dark-red
   [10, [0xf2, 0x49, 0x5c]],  // light-red
@@ -44,58 +42,9 @@ const CELL_STOPS = [
   [3.65, [0xf2, 0x49, 0x5c]], // red
 ];
 const CELL_BASE = [0xf2, 0x49, 0x5c]; // Base: rot – unter 2.8 V solid rot (auch < 2.5 V)
-
-function ramp(stops, v) {
-  if (v <= stops[0][0]) return stops[0][1];
-  for (let i = 1; i < stops.length; i++) {
-    if (v <= stops[i][0]) {
-      const [v0, c0] = stops[i - 1], [v1, c1] = stops[i];
-      const t = (v - v0) / (v1 - v0);
-      return c0.map((c, j) => Math.round(c + t * (c1[j] - c)));
-    }
-  }
-  return stops[stops.length - 1][1];
-}
-const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
-const dim = (c, f = 0.28) => c.map((x) => Math.round(x * f + 0x22 * (1 - f)));
 const cellColorRaw = (v) => (v < 2.8 ? CELL_BASE : ramp(CELL_STOPS, v));
-const cellColor = (v) => rgb(cellColorRaw(v));
 
-/* ---------- LED-Bargauge ---------- */
-function buildLedBar(el, n, min, max, stops) {
-  el.innerHTML = '';
-  const leds = [];
-  for (let i = 0; i < n; i++) {
-    const d = document.createElement('div');
-    d.className = 'led';
-    const v = min + (i + 0.5) * (max - min) / n;
-    const c = ramp(stops, v);
-    d.style.background = rgb(dim(c));
-    el.appendChild(d);
-    leds.push(d);
-  }
-  return leds;
-}
-
-function setLedBar(leds, min, max, stops, value, colorFn) {
-  if (value == null) return;
-  const cfn = colorFn || ((v) => ramp(stops, v));
-  const frac = Math.max(0, Math.min(1, (value - min) / (max - min)));
-  const on = Math.round(frac * leds.length);
-  for (let i = 0; i < leds.length; i++) {
-    // Farbe immer aus der Gradient-Skala (wie Grafana-LED-Bargauge):
-    // gefüllte Segmente hell, ungefüllte nur abgedunkelt
-    const c = cfn(min + (i + 0.5) * (max - min) / leds.length);
-    if (i < on) {
-      leds[i].classList.add('on');
-      leds[i].style.background = rgb(c);
-    } else {
-      leds[i].classList.remove('on');
-      leds[i].style.background = rgb(dim(c));
-    }
-  }
-}
-
+/* ---------- LED-Bargauges ---------- */
 const SOC_LEDS = buildLedBar($('soc-bar'), 100, 0, 100, SOC_STOPS);
 const CELL_LEDS = [];
 for (let i = 1; i <= 8; i++) {
@@ -122,7 +71,7 @@ function buildGauge() {
   svg.innerHTML = `
     <path id="g-bg" fill="none" stroke="#22252b" stroke-width="12"
       stroke-linecap="round"/>
-    <path id="g-fill" fill="none" stroke="${'var(--green)'}" stroke-width="12"
+    <path id="g-fill" fill="none" stroke="var(--green)" stroke-width="12"
       stroke-linecap="round"/>
     <text x="50%" y="52%" text-anchor="middle" id="g-val">–</text>
     <text x="50%" y="66%" text-anchor="middle" class="gunit">mV</text>`;
@@ -149,7 +98,7 @@ function buildGauge() {
 const gauge = buildGauge();
 
 /* ---------- Heute-Chart (uPlot) ---------- */
-let uplot = null;
+let uplotChart = null;
 async function updateChart() {
   let res;
   try {
@@ -158,39 +107,31 @@ async function updateChart() {
   } catch (e) { return; }
   const s = res?.results?.[0]?.series?.[0];
   if (!s) return;
-  const data = [[], [], [], []]; // time, bat, pv, cons
+  const data = [[], [], [], []];
   for (const v of s.values) {
     data[0].push(v[0]);
     data[1].push(v[1] == null ? null : Math.round(v[1]));
     data[2].push(v[2] == null ? null : Math.round(v[2]));
     data[3].push(v[3] == null ? null : Math.round(v[3]));
   }
-  const opts = {
-    width: $('powerchart').clientWidth,
-    height: 300,
-    legend: { show: false },   // eigene Legende (Min/Max/Last) darunter
-    scales: { x: { time: true } },
-    series: [
-      {},
-      { label: 'Battery Power', stroke: '#5794f2', width: 1.5, fill: 'rgba(87,148,242,0.15)', spanGaps: true },
-      { label: 'PV Power', stroke: '#73bf69', width: 1.5, fill: 'rgba(115,191,105,0.12)', spanGaps: true },
-      { label: 'Load Power', stroke: '#ff9830', width: 1.5, fill: 'rgba(255,152,48,0.10)', spanGaps: true },
-    ],
-    axes: [
-      { stroke: '#8e8e8e', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' } },
-      { stroke: '#8e8e8e', grid: { stroke: '#2c3235' }, ticks: { stroke: '#2c3235' },
-        values: (u, vals) => vals.map((v) => (v >= 1000 ? (v / 1000).toFixed(1) + ' kW' : v + ' W')) },
-    ],
-  };
-  if (!uplot) {
-    uplot = new uPlot(opts, data, $('powerchart'));
-  } else {
-    uplot.setData(data);
-  }
-  renderLegend(data, s.columns);
+  const opts = uplotBaseOpts(300,
+    (u, vals) => vals.map((v) => (Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + ' kW' : v + ' W')));
+  opts.width = $('powerchart').clientWidth;
+  opts.series = [
+    {},
+    { label: 'Battery Power', stroke: '#5794f2', width: 1.5, fill: 'rgba(87,148,242,0.15)', spanGaps: true },
+    { label: 'PV Power', stroke: '#73bf69', width: 1.5, fill: 'rgba(115,191,105,0.12)', spanGaps: true },
+    { label: 'Load Power', stroke: '#ff9830', width: 1.5, fill: 'rgba(255,152,48,0.10)', spanGaps: true },
+  ];
+  if (!uplotChart) uplotChart = new uPlot(opts, data, $('powerchart'));
+  else uplotChart.setData(data);
+  renderLegendTable($('legend'), [
+    { label: 'Battery Power', color: '#5794f2', values: data[1], fmt: fmtW },
+    { label: 'PV Power', color: '#73bf69', values: data[2], fmt: fmtW },
+    { label: 'Load Power', color: '#ff9830', values: data[3], fmt: fmtW },
+  ]);
 }
 
-// Grafana-Legende: Name | Min | Max | Last (unterm Chart)
 function fmtW(v) {
   if (v == null) return '–';
   const a = Math.abs(v);
@@ -198,47 +139,12 @@ function fmtW(v) {
   return v.toFixed(2) + ' W';
 }
 
-function renderLegend(data, columns) {
-  const labels = ['Battery Power', 'PV Power', 'Load Power'];
-  const colors = ['#5794f2', '#73bf69', '#ff9830'];
-  let html = '<table class="legend-table"><tr><th>Name</th><th>Min</th><th>Max</th><th>Last*</th></tr>';
-  for (let i = 1; i <= 3; i++) {
-    const vals = data[i].filter((v) => v != null);
-    const min = vals.length ? Math.min(...vals) : null;
-    const max = vals.length ? Math.max(...vals) : null;
-    let last = null;
-    for (let j = data[i].length - 1; j >= 0; j--) {
-      if (data[i][j] != null) { last = data[i][j]; break; }
-    }
-    html += `<tr>
-      <td><span class="lg-dot" style="background:${colors[i - 1]}"></span>${labels[i - 1]}</td>
-      <td>${fmtW(min)}</td><td>${fmtW(max)}</td><td>${fmtW(last)}</td></tr>`;
-  }
-  html += '</table>';
-  $('legend').innerHTML = html;
-}
 // Chart nur alle 60 s aktualisieren (1-Min-Daten!)
 updateChart();
 setInterval(updateChart, 60000);
-window.addEventListener('resize', () => uplot && uplot.setSize({ width: $('powerchart').clientWidth, height: 300 }));
+window.addEventListener('resize', () => uplotChart && uplotChart.setSize({ width: $('powerchart').clientWidth, height: 300 }));
 
 /* ---------- 1s-Tick: Live-Werte ---------- */
-function extract(res) {
-  try {
-    const s = res.results?.[0]?.series?.[0];
-    if (!s || !s.values || !s.values.length) return null;
-    const row = {};
-    s.columns.forEach((c, i) => { row[c] = s.values[0][i]; });
-    return row;
-  } catch (e) { return null; }
-}
-
-async function fetchQ(q) {
-  const r = await fetch('/query?q=' + encodeURIComponent(q));
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  return extract(await r.json());
-}
-
 function update(row, cells) {
   if (!row) {
     $('status').textContent = 'KEINE DATEN / Influx unerreichbar';
@@ -248,8 +154,7 @@ function update(row, cells) {
   $('status').textContent = 'Daten OK';
   $('status').classList.remove('err');
 
-  const now = new Date().toLocaleTimeString('de-DE');
-  $('clock').textContent = now;
+  $('clock').textContent = new Date().toLocaleTimeString('de-DE');
   $('clock2').textContent = new Date().toLocaleString('de-DE');
 
   // SOC
@@ -294,7 +199,7 @@ function update(row, cells) {
 
 async function tick() {
   try {
-    const [row, cells] = await Promise.all([fetchQ(Q_LAST), fetchQ(Q_CELLS)]);
+    const [row, cells] = await Promise.all([fetchRow(Q_LAST), fetchRow(Q_CELLS)]);
     update(row, cells);
   } catch (e) {
     $('status').textContent = 'FEHLER: ' + e.message;
