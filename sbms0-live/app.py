@@ -9,7 +9,7 @@ Leichte Web-App als Ersatz für das Grafana LIVE-Dashboard im Kiosk.
   (Browser darf InfluxDB nicht direkt erreichen)
 
 Aufruf:         python3 app.py [port]
-Default-Port:   8088
+Default-Port:   8090  (8088 ist von InfluxDB-RPC belegt!)
 Abhängigkeiten: flask (pip3 install flask)
 """
 
@@ -57,5 +57,5 @@ def health():
 
 
 if __name__ == '__main__':
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8088
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8090
     app.run(host='0.0.0.0', port=port, threaded=True)

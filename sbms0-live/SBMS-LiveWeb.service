@@ -7,7 +7,7 @@ Wants=influxdb.service
 Type=simple
 User=dietpi
 WorkingDirectory=/home/SBMS0/sbms0-live
-ExecStart=/usr/bin/python3 /home/SBMS0/sbms0-live/app.py 8088
+ExecStart=/usr/bin/python3 /home/SBMS0/sbms0-live/app.py 8090
 Restart=always
 RestartSec=5
 

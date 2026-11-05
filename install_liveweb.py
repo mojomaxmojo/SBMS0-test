@@ -64,10 +64,10 @@ def main():
     print('== 4/4 Selbsttest ==')
     import time
     time.sleep(2)
-    rc = run(['curl', '-sf', 'http://localhost:8088/health'])
+    rc = run(['curl', '-sf', 'http://localhost:8090/health'])
     if rc == 0:
-        print('\nOK  ->  Live-Web läuft auf http://<dietpi-ip>:8088')
-        print('     Kiosk-URL (dietpi.txt): http://localhost:8088')
+        print('\nOK  ->  Live-Web läuft auf http://<dietpi-ip>:8090')
+        print('     Kiosk-URL (dietpi.txt): http://localhost:8090')
     else:
         print('\nWARNUNG: /health nicht erreichbar – Logs mit:')
         print('  journalctl -u SBMS-LiveWeb -n 30')
