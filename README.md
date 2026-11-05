@@ -73,3 +73,20 @@ Primäres Zielsystem ist **DietPi (Debian Trixie) auf Dell Wyse 3040** — `inst
 cd /home/SBMS0 && git pull && bash import_dashboards.sh
 ```
 Anschließend Dashboard im Browser/Kiosk frisch laden (Shift+F5 bzw. Kiosk-Neustart).
+
+## Live-Web (eigene Kiosk-App, Ersatz für Grafana im Kiosk)
+
+- **Port 8090** (8088 ist InfluxDB-RPC): `http://<dietpi-ip>:8090`
+  - `/` = LIVE, `/calc` = BERECHNUNGEN, `/hist` = HISTORIE (Zeitraum frei wählbar, Default 30 d)
+- **Installieren/Aktualisieren:**
+  ```bash
+  cd /home/SBMS0 && git pull && sudo python3 install_liveweb.py
+  sudo systemctl restart SBMS-LiveWeb
+  ```
+- **Dienst:** `SBMS-LiveWeb.service` (User `dietpi`, Flask + Influx-Query-Proxy)
+- **Grafana schlafen legen** (nicht deinstallieren – bleibt als Rückfallebene):
+  ```bash
+  sudo systemctl disable --now grafana-server   # aus + deaktiviert
+  sudo systemctl enable --now grafana-server    # wieder aktivieren
+  ```
+- **Kiosk-URL** (in `/boot/dietpi.txt`, `SOFTWARE_CHROMIUM_AUTOSTART_URL`): `http://localhost:8090`
