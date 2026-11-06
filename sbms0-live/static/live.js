@@ -46,7 +46,7 @@ const cellColorRaw = (v) => (v < 2.8 ? CELL_BASE : ramp(CELL_STOPS, v));
 const socColorRaw = (soc) => ramp(SOC_STOPS, soc);
 
 /* ---------- LED-Bargauges ---------- */
-const SOC_LEDS = buildLedBar($('soc-bar'), 100, 0, 100, SOC_STOPS);
+const SOC_LEDS = buildLedBar($('soc-bar'), 150, 0, 100, SOC_STOPS);
 const CELL_LEDS = [];
 for (let i = 1; i <= 8; i++) {
   const row = document.createElement('div');
@@ -57,7 +57,7 @@ for (let i = 1; i <= 8; i++) {
     `<span class="cval">–</span>`;
   $('cells').appendChild(row);
   CELL_LEDS.push({
-    leds: buildLedBar(row.querySelector('.ledbar'), 60, 2.5, 3.8, CELL_STOPS),
+    leds: buildLedBar(row.querySelector('.ledbar'), 130, 2.5, 3.8, CELL_STOPS),
     val: row.querySelector('.cval'),
   });
 }
