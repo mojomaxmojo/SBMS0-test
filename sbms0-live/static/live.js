@@ -43,6 +43,7 @@ const CELL_STOPS = [
 ];
 const CELL_BASE = [0xf2, 0x49, 0x5c]; // Base: rot – unter 2.8 V solid rot (auch < 2.5 V)
 const cellColorRaw = (v) => (v < 2.8 ? CELL_BASE : ramp(CELL_STOPS, v));
+const socColorRaw = (soc) => ramp(SOC_STOPS, soc);
 
 /* ---------- LED-Bargauges ---------- */
 const SOC_LEDS = buildLedBar($('soc-bar'), 100, 0, 100, SOC_STOPS);
@@ -163,6 +164,10 @@ function update(row, cells) {
   const soc = Number(row.SOC);
   setLedBar(SOC_LEDS, 0, 100, SOC_STOPS, soc);
   $('soc-num').textContent = soc.toFixed(0);
+  // % Zahl in der Farbe des SOC-Balkens
+  const socC = socColorRaw(soc);
+  $('soc-num').style.color = rgb(socC);
+  $('soc-num').nextElementSibling.style.color = rgb(socC);
 
   // Leistungen
   const vbat = Number(row.Vbat);
