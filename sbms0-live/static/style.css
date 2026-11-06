@@ -1,6 +1,10 @@
 /* SBMS0 Live-Web – Grafana-Look (LED-Bargauges, Stat-Werte, Gauge, uPlot) */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Scrollbar verstecken (Kiosk) – Scrollen per Touch funktioniert weiter */
+::-webkit-scrollbar { width: 0; height: 0; display: none; }
+html { scrollbar-width: none; -ms-overflow-style: none; }
+
 :root {
   --bg: #111217;
   --panel: #181b1f;
