@@ -63,6 +63,17 @@ sudo bash install_all.sh /dev/ttyUSB1
 | `SBMS-LiveLogger.service` | 1-Hz-Logger → InfluxDB (+ 1-Min-Downsampling) – User `dietpi`, Gruppe `dialout` |
 | `SBMS-Logger.service` | Legacy-Logger `sbms0-SerialToInfluxDB.py` (nur Pi-Installer, User `pi`) |
 
+## Logger-Verhalten (`sbms0-LiveLogger.py`)
+
+**Schreib-Logik (aktuell):**
+- Es wird **nur geschrieben, wenn seit dem letzten Schreiben eine frische Serial-Zeile empfangen wurde** (`data_new`-Flag).
+- Im Normalbetrieb (> 1 Serial-Zeile/s, SBMS0 sendet kontinuierlich) bleibt der **1-s-Takt** unverändert – 1 Messpunkt pro Sekunde in `raw_1s`.
+- Bei Serial-Aussetzern (Kabel ab, SBMS0 aus, Störung) werden **keine erfundenen Duplikate** mehr geschrieben (früher: letzter Wert mit neuem Zeitstempel je Sekunde). Sobald wieder Daten kommen, wird sofort geschrieben.
+- **Zeitstempel = Empfangszeit** der Serial-Zeile (`data_ts`), nicht die Schreibzeit → die 1-Minuten-Mittelwerte (`downsampled_1m`) sind präziser.
+- `build_json_body()` wird pro Schreibvorgang nur 1× aufgebaut (vorher 2×) – weniger CPU/Allokation.
+- Terminal-Anzeige (SSH) bleibt im 1-s-Takt.
+- CSV-Fallback bei InfluxDB-Fehlern unverändert; Plausibilitätsprüfungen (Gesamtspannung, SOC, Zellwerte) verwerfen kaputte Zeilen komplett.
+
 ## Wichtige Berechnungs-Formeln (BERECHNUNGEN)
 
 - Energie: `sum(<Power W>) / 3600 / 1000` → kWh (bei 1 Hz-Daten)
