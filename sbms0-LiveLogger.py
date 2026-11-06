@@ -258,6 +258,8 @@ def main():
     last_log = 0.0
     writes_ok = 0
     writes_err = 0
+    data_new = False   # True, seit dem letzten Schreiben kam eine frische Serial-Zeile
+    data_ts = None     # Empfangszeit der letzten gueltigen Zeile (Schreib-Zeitstempel)
 
     # --- 1-Minuten-Mittelwerte (schreibt selbst in downsampled_1m, ersetzt den CQ) ---
     minute_acc = {}          # Feldname -> [sum, count]
@@ -302,6 +304,8 @@ def main():
                 line = ser.readline().decode('ascii', errors='ignore').strip()
                 if line and len(line) >= 59:
                     data = parse_line(line)
+                    data_new = True
+                    data_ts = datetime.datetime.now()
                     status = 'Daten OK - letztes Update: ' + datetime.datetime.now().strftime('%H:%M:%S')
             except (serial.SerialException, OSError):
                 status = 'WARNUNG: Serial-Port verloren - warte auf Geraet ...'
@@ -319,17 +323,23 @@ def main():
 
             # --- Alle LOG_INTERVAL Sekunden: InfluxDB schreiben + anzeigen ---
             if now - last_log >= LOG_INTERVAL:
-                last_log = now
-                ts = datetime.datetime.now()
-
+                # Nur schreiben, wenn seit dem letzten Schreiben eine frische
+                # Serial-Zeile kam (keine erfundenen Duplikate bei Serial-Aussetzern).
+                # Im Normalbetrieb (> 1 Zeile/s) bleibt der 1-s-Takt unveraendert.
                 if data is None:
-                    # Noch keine gueltigen Daten -> Anzeige in Ruhe lassen, nichts schreiben
                     time.sleep(0.1)
                     continue
+                if not data_new:
+                    continue
 
-                # InfluxDB schreiben (jede Sekunde, auch wenn keine neuen Serial-Daten kamen)
+                last_log = now
+                ts = data_ts if data_ts is not None else datetime.datetime.now()
+                data_new = False
+
+                # InfluxDB schreiben
+                body = build_json_body(data, ts)  # einmal aufbauen, zweimal nutzen
                 try:
-                    client.write_points(build_json_body(data, ts))
+                    client.write_points(body)
                     writes_ok += 1
 
                     # --- 1-Minuten-Aggregation mitfuehren ---
@@ -340,7 +350,7 @@ def main():
                         # Minutenfenster abgelaufen -> Mittelwerte schreiben
                         flush_minute()
                         minute_start = cur_minute
-                    for field, val in build_json_body(data, ts)[0]['fields'].items():
+                    for field, val in body[0]['fields'].items():
                         if isinstance(val, (int, float)):
                             acc = minute_acc.setdefault(field, [0.0, 0])
                             acc[0] += val
