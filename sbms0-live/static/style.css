@@ -99,9 +99,10 @@ body {
 .cell-legend .cl-swatch { width: 22px; height: 12px; border-radius: 2px; display: inline-block; }
 
 /* --- LED-Bargauge (Grafana "gradient"-LED-Style) --- */
-.soc-line { display: flex; align-items: center; gap: 16px; }
+.soc-line { display: flex; align-items: center; gap: 16px; height: 56px; }
 .soc-value { font-size: 4.4rem; font-weight: 500; color: var(--bright); white-space: nowrap; line-height: 1; }
 .soc-value .unit { color: inherit; font-size: 2.4rem; }
+#soc-panel { display: flex; align-items: center; }
 
 .ledbar {
   flex: 1;
