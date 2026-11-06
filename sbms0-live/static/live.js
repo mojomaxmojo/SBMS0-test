@@ -46,7 +46,7 @@ const cellColorRaw = (v) => (v < 2.8 ? CELL_BASE : ramp(CELL_STOPS, v));
 const socColorRaw = (soc) => ramp(SOC_STOPS, soc);
 
 /* ---------- LED-Bargauges ---------- */
-const SOC_LEDS = buildLedBar($('soc-bar'), 100, 0, 100, SOC_STOPS);
+const SOC_LEDS = buildLedBar($('soc-bar'), 150, 0, 100, SOC_STOPS);
 const CELL_LEDS = [];
 for (let i = 1; i <= 8; i++) {
   const row = document.createElement('div');
@@ -166,9 +166,8 @@ function update(row, cells) {
   $('soc-num').textContent = soc.toFixed(0);
   // % Zahl in der Farbe des SOC-Balkens
   const socC = socColorRaw(soc);
-  const c = rgb(socC);
-  $('soc-num').style.color = c;
-  if ($('soc-num').nextElementSibling) $('soc-num').nextElementSibling.style.color = c;
+  $('soc-num').style.color = rgb(socC);
+  $('soc-num').nextElementSibling.style.color = rgb(socC);
 
   // Leistungen
   const vbat = Number(row.Vbat);
