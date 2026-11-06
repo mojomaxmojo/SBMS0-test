@@ -100,8 +100,8 @@ body {
 
 /* --- LED-Bargauge (Grafana "gradient"-LED-Style) --- */
 .soc-line { display: flex; align-items: center; gap: 16px; }
-.soc-value { font-size: 2.6rem; font-weight: 500; color: var(--bright); white-space: nowrap; }
-.soc-value .unit { color: var(--orange); font-size: 1.6rem; }
+.soc-value { font-size: 4.4rem; font-weight: 500; color: var(--bright); white-space: nowrap; line-height: 1; }
+.soc-value .unit { color: inherit; font-size: 2.4rem; }
 
 .ledbar {
   flex: 1;
@@ -130,9 +130,9 @@ body {
 }
 .stat-value.small { font-size: 1.5rem; line-height: 2.4rem; font-weight: 400; }
 .stat-value .unit { font-size: 1.3rem; color: var(--dim); font-weight: 400; }
-.green  { color: var(--green) !important; }
-.blue   { color: var(--blue) !important; }
-.orange { color: var(--orange) !important; }
+.green  { color: #96d98d !important; }
+.blue   { color: #8ab8ff !important; }
+.orange { color: #ffb357 !important; }
 .stat-sub { color: var(--dim); font-size: 13px; margin-top: 2px; text-align: center; }
 #flags-de.err { color: var(--red); }
 
